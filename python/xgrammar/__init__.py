@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING, Any
+
 from . import exception, load_binding, structural_tag, testing
 from .builtin_structural_tag import (
     get_builtin_structural_tag,
@@ -12,7 +14,6 @@ from .config import (
     max_recursion_depth,
     set_max_recursion_depth,
 )
-from .contrib import hf
 from .exception import (
     DeserializeFormatError,
     DeserializeVersionError,
@@ -31,6 +32,19 @@ from .matcher import (
 )
 from .structural_tag import StructuralTag
 from .tokenizer_info import TokenizerInfo, VocabType
+
+if TYPE_CHECKING:
+    from .contrib import hf
+
+
+def __getattr__(name: str) -> Any:
+    if name == "hf":
+        from .contrib import hf
+
+        globals()[name] = hf
+        return hf
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 
 __all__ = [
     "exception",
