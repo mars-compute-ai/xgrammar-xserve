@@ -1,20 +1,14 @@
 """This module provides the tokenizer info class to handle the tokenizer information."""
 
+from __future__ import annotations
+
 import json
 import warnings
 from enum import Enum
-from typing import Any, Dict, FrozenSet, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, FrozenSet, List, Optional, Union
 
-try:
-    import sentencepiece
-except ImportError:
-    sentencepiece = None
-try:
-    import tiktoken
-except ImportError:
-    tiktoken = None
-
-from transformers import PreTrainedTokenizerBase, PreTrainedTokenizerFast
+if TYPE_CHECKING:
+    from transformers import PreTrainedTokenizerBase
 
 from .base import XGRObject, _core
 
@@ -126,7 +120,9 @@ class TokenizerInfo(XGRObject):
 
     @staticmethod
     def _is_tiktoken_tokenizer(tokenizer: PreTrainedTokenizerBase) -> bool:
-        if tiktoken is None:
+        try:
+            import tiktoken
+        except ImportError:
             return False
 
         # helper to check if tokenizer is a tiktoken tokenizer
@@ -156,7 +152,9 @@ class TokenizerInfo(XGRObject):
         is_byte_level : bool
             The tokenizer has byte-level whitespace conversion.
         """
-        if tiktoken is None:
+        try:
+            import tiktoken  # noqa: F401
+        except ImportError:
             return False
 
         # check the tokenizer with r' ' encode
@@ -216,7 +214,9 @@ class TokenizerInfo(XGRObject):
 
     @staticmethod
     def _is_sentencepiece_tokenizer(tokenizer: PreTrainedTokenizerBase) -> bool:
-        if sentencepiece is None:
+        try:
+            import sentencepiece
+        except ImportError:
             return False
 
         # helper to check if tokenizer is a sentence piece tokenizer
@@ -285,6 +285,8 @@ class TokenizerInfo(XGRObject):
         tokenizer_info : TokenizerInfo
             The tokenizer info.
         """
+        from transformers import PreTrainedTokenizerFast
+
         if isinstance(stop_token_ids, int):
             stop_token_ids = [stop_token_ids]
         if isinstance(stop_token_ids, list) and len(stop_token_ids) == 0:
